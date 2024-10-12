@@ -1,8 +1,11 @@
 # Movies-Backend-Application
+
 Movies application
 
-
 ## Project Structure
+
+```bash
+.
 ├── DB/                             # Database-related files (SQL scripts, schema diagrams)
 │   ├── content_ratings.sql         # SQL script for content ratings table
 │   └── users.sql                   # SQL script for users table
@@ -36,3 +39,4 @@ Movies application
 ├── TODO.ts                         # Task list and future improvements
 ├── tsconfig.json                   # TypeScript configuration file
 └── app.ts                          # Main entry point of the application
+```
