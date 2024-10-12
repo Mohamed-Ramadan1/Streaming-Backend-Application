@@ -1,4 +1,3 @@
-// src/app.ts
 import express from "express";
 import { PORT } from "./config/index.config";
 import { connectDatabase } from "./config/database.config";
@@ -11,7 +10,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-// Check database connection
+// Connect to database
 connectDatabase();
 
 app.listen(PORT, () => {
