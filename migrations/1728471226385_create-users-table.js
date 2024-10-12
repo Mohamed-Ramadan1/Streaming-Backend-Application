@@ -9,33 +9,31 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable("users", {
+  pgm.createTable("create_users_table", {
     id: {
       type: "serial",
       primaryKey: true,
     },
-    username: {
+    firstName: {
+      type: "varchar(50)",
+      notNull: true,
+    },
+    lastName: {
       type: "varchar(50)",
       notNull: true,
     },
     email: {
-      type: "varchar(100)",
+      type: "varchar(255)",
       notNull: true,
       unique: true,
+      validate: {
+        isEmail: true,
+      },
+      
     },
     password: {
-      type: "varchar(100)",
+      type: "varchar(255)",
       notNull: true,
-    },
-    created_at: {
-      type: "timestamp",
-      notNull: true,
-      default: pgm.func("current_timestamp"),
-    },
-    updated_at: {
-      type: "timestamp",
-      notNull: true,
-      default: pgm.func("current_timestamp"),
     },
   });
 };
@@ -43,8 +41,9 @@ exports.up = (pgm) => {
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
+
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropTable("users");
+  pgm.dropTable("create_users_table");
 };
