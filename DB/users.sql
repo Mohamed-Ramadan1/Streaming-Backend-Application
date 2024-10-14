@@ -1,125 +1,59 @@
--- id => serial PRIMERY KEY  NOT NULL
--- firstName=>
--- lastName=>
--- password=>
--- passwordResetToken=>
--- passwordResetExpires=>
--- email=>
--- roles=>
--- phoneNumber=>
--- address=>
--- age=>
--- profileImage=>
--- profileImagePublicId=>
--- dataOfBerth=>
--- country=>
--- subscriptionPlan=>
--- isEmailVerified=>
--- emailVerificationToken=>
--- emailVerificationTokenExpiresAt=>
--- isSubscriptionActive=>
--- isAccountActive=>
--- isNotificationMuted=>
--- createdAt=> time stamp with time zone
--- updatedAt=> time stamp  with time zone
-
--- CREATE TABLE users (
---     id SERIAL PRIMARY KEY NOT NULL,
---     firstName VARCHAR(50) NOT NULL,
---     lastName VARCHAR(50) NOT NULL,
---     password VARCHAR(255) NOT NULL, -- To store hashed passwords
---     passwordSalt VARCHAR(255), -- Optional: for password hashing
---     passwordResetToken VARCHAR(255),
---     passwordResetExpires TIMESTAMPTZ,
---     email VARCHAR(255) NOT NULL UNIQUE,
---     roles TEXT[] DEFAULT ARRAY['user'], -- Or use ENUM based roles
---     phoneNumber VARCHAR(20) UNIQUE,
---     address VARCHAR(255),
---     age INTEGER,
---     profileImage VARCHAR(255),
---     profileImagePublicId VARCHAR(255),
---     dateOfBirth DATE,
---     country VARCHAR(50),
---     subscriptionPlan subscriptionType DEFAULT 'free', -- Use ENUM for subscription plans
---     isEmailVerified BOOLEAN DEFAULT FALSE,
---     emailVerificationToken VARCHAR(255),
---     emailVerificationTokenExpiresAt TIMESTAMPTZ,
---     isSubscriptionActive BOOLEAN DEFAULT FALSE,
---     isAccountActive BOOLEAN DEFAULT FALSE,
---     isNotificationMuted BOOLEAN DEFAULT FALSE,
---     metadata JSONB, -- For storing additional data
---     createdAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
---     updatedAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     deletedAt TIMESTAMPTZ -- Soft delete feature
--- );
-
--- CREATE INDEX idx_email ON users(email);
--- CREATE INDEX idx_isEmailVerified ON users(isEmailVerified);
--- CREATE INDEX idx_isAccountActive ON users(isAccountActive);
-
-
--- CREATE TYPE subscriptionType AS ENUM ('free', 'basic', 'premium');
-
-
--- Improved SQL Table Structure for 'users'
-
+-- Enum types
 CREATE TYPE subscriptionType AS ENUM ('free', 'basic', 'premium');
 CREATE TYPE accountType AS ENUM ('personal', 'business', 'admin');
 CREATE TYPE genderType AS ENUM ('male', 'female', 'non_binary');
+CREATE TYPE languagePreference AS ENUM ('english', 'spanish', 'french', 'german', 'mandarin', 'japanese', 'korean', 'other');
 
+-- Users table
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    firstName VARCHAR(100) NOT NULL, 
+    firstName VARCHAR(100) NOT NULL,
     lastName VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL, -- To store hashed passwords
-    passwordSalt VARCHAR(255), -- Optional: for password hashing
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    passwordSalt VARCHAR(255),
     passwordResetToken VARCHAR(255),
     passwordResetExpires TIMESTAMPTZ,
-    email VARCHAR(255) NOT NULL UNIQUE, -- Consider encrypting sensitive fields
-    roles jsonb DEFAULT '["user"]', -- Flexible roles using JSONB
-    phoneNumber VARCHAR(20) UNIQUE CHECK (phoneNumber ~ '^\+[1-9]\d{1,14}$'), -- Standardized phone number format
-    streetAddress VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    postalCode VARCHAR(20),
-    country VARCHAR(50),
-    age INTEGER,
+    phoneNumber VARCHAR(20) UNIQUE,
+    dateOfBirth DATE,
+    age INTEGER GENERATED ALWAYS AS (DATE_PART('year', AGE(dateOfBirth))) STORED,
     gender genderType,
     profileImage VARCHAR(255),
     profileImagePublicId VARCHAR(255),
-    dateOfBirth DATE,
-    subscriptionPlan subscriptionType DEFAULT 'free', -- ENUM for subscription plans
+    roles JSONB DEFAULT '["user"]'::jsonb,
     isEmailVerified BOOLEAN DEFAULT FALSE,
     emailVerificationToken VARCHAR(255),
     emailVerificationTokenExpiresAt TIMESTAMPTZ,
-    isSubscriptionActive BOOLEAN DEFAULT FALSE,
-    isAccountActive BOOLEAN DEFAULT FALSE,
+    isAccountActive BOOLEAN DEFAULT TRUE,
     isNotificationMuted BOOLEAN DEFAULT FALSE,
-    metadata JSONB, -- For storing additional data
-    accountType accountType DEFAULT 'personal', -- Account type ENUM
+    lastLoginAt TIMESTAMPTZ,
+    preferredLanguage languagePreference DEFAULT 'english',
+    favoriteGenres TEXT[],
+    accountType accountType DEFAULT 'personal',
+    metadata JSONB,
     createdAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMPTZ -- Soft delete feature
+    updatedAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMPTZ
 );
 
--- Indexes for improved search performance
-CREATE INDEX idx_email ON users(email);
-CREATE INDEX idx_isEmailVerified ON users(isEmailVerified);
-CREATE INDEX idx_isAccountActive ON users(isAccountActive);
-CREATE INDEX idx_phoneNumber ON users(phoneNumber);
-CREATE INDEX idx_dateOfBirth ON users(dateOfBirth);
-CREATE INDEX idx_country ON users(country);
+-- Indexes for users table
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_phone ON users(phoneNumber);
+CREATE INDEX idx_users_name ON users(lastName, firstName);
+CREATE INDEX idx_users_dob ON users(dateOfBirth);
+CREATE INDEX idx_users_account_status ON users(isAccountActive, isEmailVerified);
+CREATE INDEX idx_users_last_login ON users(lastLoginAt);
 
--- Trigger to automatically update `updatedAt` on row updates
+-- Trigger for updating 'updatedAt' in users table
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
-RETURNS TRIGGER AS $$i am r4o
+RETURNS TRIGGER AS $$
 BEGIN
-   NEW.updatedAt = CURRENT_TIMESTAMP;
-   RETURN NEW;
+  NEW.updatedAt = CURRENT_TIMESTAMP;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_timestamp
+CREATE TRIGGER set_timestamp_users
 BEFORE UPDATE ON users
 FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();
+EXECUTE FUNCTION trigger_set_timestamp();
