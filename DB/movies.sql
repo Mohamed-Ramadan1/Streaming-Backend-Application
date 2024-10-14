@@ -1,37 +1,10 @@
-id                    =>     
-title=>
-release_date=>
-duration=>
-genres=>
-language=>
-subtitle_languages=>
-audio_languages=>
-country_of_origin=>
-keywords=>
-plot_summary=>
-release_type=>
-rating=>
-imdb_rating=>
-box_office_revenue=>
-writers=>
-budget=>
-cast=>
-director=>
-poster_url=>
-trailer_url=>
-production_company=>
-awards=>
-tagline=>
-likes_count=>
-user_comments=>
-user_ratings=>
-views_count=>
-license_start_date=>
-licensor=>
-age_restriction:=>
-content_warning=>
-license_end_date:=>
-available_resolutions=>
-available_in_regions=>
-created_at =>
-updated_at =>
+-- File: movies.sql
+CREATE TABLE Movies (
+    duration INTERVAL,
+    release_type VARCHAR(50),
+    box_office_revenue DECIMAL(15,2)
+) INHERITS (Content);
+
+CREATE TRIGGER update_movies_modtime
+BEFORE UPDATE ON Movies
+FOR EACH ROW EXECUTE FUNCTION update_modified_column();

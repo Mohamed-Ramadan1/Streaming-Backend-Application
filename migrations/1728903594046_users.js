@@ -9,7 +9,9 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable("create_users_table", {
+  pgm.createType("subscription_status", ["active", "inactive", "pending"]);
+  
+  pgm.createTable("users", {
     id: {
       type: "serial",
       primaryKey: true,
@@ -29,7 +31,6 @@ exports.up = (pgm) => {
       validate: {
         isEmail: true,
       },
-      
     },
     password: {
       type: "varchar(255)",
@@ -45,5 +46,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropTable("create_users_table");
+  pgm.dropTable("users");
 };
