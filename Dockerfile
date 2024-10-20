@@ -2,7 +2,7 @@
 FROM node:20
 
 # set the proejct working  directory
-WORKDIR /app
+WORKDIR /
 
 # copy the package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -16,7 +16,9 @@ COPY . .
 # build the  code using webpack
 RUN npm run build
 
+
 # Expose the port that your app runs on
 EXPOSE ${PORT}
+
 # Define the command to run your app
 CMD ["node", "dist/index.js"]
