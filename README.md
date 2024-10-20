@@ -55,5 +55,3 @@ STREAMING-B
 ├── TODO.ts                     # List of todos or planned features
 └── tsconfig.json               # TypeScript compiler configuration
 ```
-
-streaming-backend-application

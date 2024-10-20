@@ -1,7 +1,6 @@
 /*
 Step 1: 
-1) Setup webpack  for building  the project
-2) setup docker for the project
+
 3) setup docker-compose for the project
 4) setup logging for the project
 5) setup email service for the project
